@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grafite — Bloco de Notas</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <button class="icon-btn" id="btnSide" title="Mostrar ou ocultar a lista de notas" aria-label="Alternar lista de notas">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+    </button>
+    <div class="brand"><b>Grafite</b><span>bloco de notas</span></div>
+    <div class="spacer"></div>
+    <div class="menu-wrap">
+      <button class="btn btn-primary caret" id="btnNew">Nova nota</button>
+      <div class="menu" id="menuNew">
+        <div class="menu-note">Tipo de nota</div>
+        <button data-newtype="texto">Texto simples</button>
+        <button data-newtype="rico">Texto formatado</button>
+        <button data-newtype="markdown">Markdown</button>
+        <button data-newtype="tarefas">Lista de tarefas</button>
+      </div>
+    </div>
+    <button class="btn" id="btnImport">Importar</button>
+    <input type="file" id="fileImport" accept=".txt,.md,.markdown,.text" hidden>
+    <button class="icon-btn" id="btnTheme" title="Alternar tema (sistema, claro, escuro)" aria-label="Alternar tema">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11" fill="currentColor" stroke="none"/></svg>
+    </button>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="side-tools">
+      <input class="search" id="search" type="search" placeholder="Buscar notas" aria-label="Buscar notas">
+      <div class="side-row">
+        <select id="filterCol" aria-label="Filtrar por coleção"><option value="">Todas as coleções</option></select>
+        <button class="btn btn-sm" id="btnSort" title="Alternar ordenação">Recentes</button>
+      </div>
+    </div>
+    <div class="note-list" id="noteList"></div>
+    <div class="side-foot">
+      <button class="btn" id="btnCollections">Coleções</button>
+      <button class="btn" id="btnTrash">Lixeira</button>
+      <button class="btn" id="btnBackup">Backup</button>
+    </div>
+  </aside>
+  <div class="side-backdrop" id="sideBackdrop"></div>
+
+  <main class="main">
+    <div class="editor-scroll" id="editorScroll">
+      <div class="sheet" id="sheet"></div>
+    </div>
+    <div class="statusbar" id="statusbar"></div>
+  </main>
+</div>
+
+<!-- dialogs -->
+<dialog id="dlgShare">
+  <div class="dlg-head"><h3>Compartilhar nota</h3><button class="icon-btn" data-close aria-label="Fechar">✕</button></div>
+  <div class="dlg-body">
+    <div class="radio-row">
+      <input type="radio" name="shmode" id="shPub" value="pub" checked>
+      <label for="shPub"><b>Link simples</b><div class="r-desc">Qualquer pessoa com o link consegue ler a nota. O conteúdo viaja dentro do próprio link.</div></label>
+    </div>
+    <div class="radio-row">
+      <input type="radio" name="shmode" id="shPw" value="pw">
+      <label for="shPw"><b>Protegida por senha</b><div class="r-desc">O conteúdo é criptografado (AES-256-GCM) no seu navegador. Só abre com a senha.</div></label>
+    </div>
+    <div class="field" id="shPwField" style="display:none">
+      <label for="shPass">Senha</label>
+      <input type="password" id="shPass" autocomplete="new-password">
+    </div>
+    <div style="margin-top:8px"><button class="btn btn-primary" id="btnGenLink">Gerar link</button></div>
+    <div class="share-out" id="shareOut" style="display:none">
+      <input type="text" id="shareUrl" readonly aria-label="Link gerado">
+      <button class="btn" id="btnCopyLink">Copiar</button>
+    </div>
+    <p class="hint">Este app não usa servidor: a nota inteira é codificada dentro do link. O link funciona para quem tiver acesso a esta mesma página. Notas muito grandes geram links longos.</p>
+  </div>
+  <div class="dlg-foot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<dialog id="dlgHistory">
+  <div class="dlg-head"><h3>Histórico de versões</h3><button class="icon-btn" data-close aria-label="Fechar">✕</button></div>
+  <div class="dlg-body" id="historyBody"></div>
+  <div class="dlg-foot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<dialog id="dlgCollections">
+  <div class="dlg-head"><h3>Coleções</h3><button class="icon-btn" data-close aria-label="Fechar">✕</button></div>
+  <div class="dlg-body">
+    <div id="colList"></div>
+    <div class="share-out" style="margin-top:14px">
+      <input type="text" id="newColName" placeholder="Nome da nova coleção">
+      <button class="btn" id="btnAddCol">Criar</button>
+    </div>
+    <p class="hint">Coleções agrupam notas, como pastas. Excluir uma coleção não exclui as notas dela.</p>
+  </div>
+  <div class="dlg-foot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<dialog id="dlgTrash">
+  <div class="dlg-head"><h3>Lixeira</h3><button class="icon-btn" data-close aria-label="Fechar">✕</button></div>
+  <div class="dlg-body" id="trashBody"></div>
+  <div class="dlg-foot">
+    <button class="btn btn-danger" id="btnEmptyTrash">Esvaziar lixeira</button>
+    <button class="btn" data-close>Fechar</button>
+  </div>
+</dialog>
+
+<dialog id="dlgBackup">
+  <div class="dlg-head"><h3>Backup</h3><button class="icon-btn" data-close aria-label="Fechar">✕</button></div>
+  <div class="dlg-body">
+    <p>Suas notas ficam salvas apenas neste navegador (localStorage). Faça backups periódicos para não perder nada se o navegador for limpo.</p>
+    <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnExportBackup">Baixar backup (.json)</button>
+      <button class="btn" id="btnRestoreBackup">Restaurar backup</button>
+      <input type="file" id="fileBackup" accept=".json,application/json" hidden>
+    </div>
+    <p class="hint">A restauração mescla o backup com as notas atuais: notas com a mesma identificação são substituídas pela versão mais recente; as demais são adicionadas.</p>
+  </div>
+  <div class="dlg-foot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<dialog id="dlgConfirm">
+  <div class="dlg-head"><h3 id="confirmTitle">Confirmar</h3><button class="icon-btn" data-close aria-label="Fechar">✕</button></div>
+  <div class="dlg-body" id="confirmMsg"></div>
+  <div class="dlg-foot">
+    <button class="btn" data-close>Cancelar</button>
+    <button class="btn btn-primary" id="btnConfirmOk">Confirmar</button>
+  </div>
+</dialog>
+
+<!-- shared note viewer -->
+<div class="viewer" id="viewer">
+  <div class="viewer-top">
+    <div class="vt">Nota compartilhada — somente leitura</div>
+    <div class="spacer" style="flex:1"></div>
+    <button class="btn" id="btnSaveCopy">Salvar cópia no meu bloco</button>
+    <button class="btn" id="btnCloseViewer">Fechar</button>
+  </div>
+  <div class="viewer-scroll" id="viewerScroll"></div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<div id="printArea"></div>
+<script src="app.js"></script>
+</body>
+</html>
