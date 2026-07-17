@@ -1200,36 +1200,6 @@ loadDB();
 applyTheme();
 $('#btnSort').textContent = db.settings.sort === 'alpha' ? 'A–Z' : 'Recentes';
 
-if (!db.notes.length && !localStorage.getItem('grafite.welcomed')){
-  const w = newNote('markdown');
-  w.title = 'Bem-vindo ao Grafite';
-  w.content = [
-    '# Bem-vindo ao Grafite',
-    '',
-    'Este é o seu bloco de notas pessoal. Tudo fica salvo **automaticamente** neste navegador enquanto você digita.',
-    '',
-    '## O que você pode fazer',
-    '',
-    '- Criar notas de **texto simples**, **texto formatado**, **Markdown** e **listas de tarefas**',
-    '- Organizar em **coleções** e encontrar tudo pela **busca**',
-    '- Ver o **histórico de versões** de cada nota e restaurar estados antigos',
-    '- **Exportar** como TXT, Markdown, HTML, Word ou PDF (via impressão)',
-    '- **Compartilhar** por link, inclusive com **proteção por senha** (criptografia AES-256-GCM feita no seu navegador)',
-    '- Usar o **modo foco** para escrever sem distração',
-    '',
-    '## Importante saber',
-    '',
-    '- As notas ficam no armazenamento local **deste navegador**, não em um servidor.',
-    '- Por isso, use o botão **Backup** (barra lateral) de tempos em tempos para baixar um arquivo `.json` com tudo.',
-    '- Limpar os dados do navegador apaga as notas — o backup é a sua garantia.',
-    '',
-    '> Dica: pressione `Ctrl+S` a qualquer momento para forçar o salvamento.'
-  ].join('\n');
-  db.notes.push(w);
-  localStorage.setItem('grafite.welcomed', '1');
-  persist();
-}
-
 renderColSelects();
 updateTrashLabel();
 renderList();
