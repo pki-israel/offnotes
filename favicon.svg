@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- corpo do bloco: grafite com borda sutil para nao sumir em aba escura -->
+  <rect x="8" y="10" width="48" height="48" rx="9" fill="#2b3036" stroke="#4a5158" stroke-width="2"/>
+  <!-- faixa da espiral no topo, um tom mais escuro -->
+  <path d="M8 23v-4a9 9 0 0 1 9-9h30a9 9 0 0 1 9 9v4z" fill="#1e2226"/>
+  <!-- furos da espiral -->
+  <circle cx="19" cy="16.5" r="2.4" fill="#aab1b8"/>
+  <circle cx="32" cy="16.5" r="2.4" fill="#aab1b8"/>
+  <circle cx="45" cy="16.5" r="2.4" fill="#aab1b8"/>
+  <!-- linhas de texto -->
+  <rect x="16" y="31" width="32" height="4.5" rx="2.2" fill="#c3c9ce"/>
+  <rect x="16" y="40" width="32" height="4.5" rx="2.2" fill="#8d949b"/>
+  <rect x="16" y="49" width="20" height="4.5" rx="2.2" fill="#8d949b"/>
+</svg>
